@@ -249,9 +249,6 @@ class StockStateProvider implements StockStateProviderInterface
         if (!$stockItem->getManageStock()) {
             return true;
         }
-        if (!$stockItem->getIsInStock()) {
-            return false;
-        }
         if ($stockItem->getQty() - $stockItem->getMinQty() - $qty < 0) {
             switch ($stockItem->getBackorders()) {
                 case \Magento\CatalogInventory\Model\Stock::BACKORDERS_YES_NONOTIFY:

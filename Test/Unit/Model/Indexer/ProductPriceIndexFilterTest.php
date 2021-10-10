@@ -23,28 +23,29 @@ use PHPUnit\Framework\TestCase;
  */
 class ProductPriceIndexFilterTest extends TestCase
 {
+
     /**
-     * @var MockObject|StockConfigurationInterface
+     * @var MockObject|StockConfigurationInterface $stockConfiguration
      */
     private $stockConfiguration;
 
     /**
-     * @var MockObject|Item
+     * @var MockObject|Item $item
      */
     private $item;
 
     /**
-     * @var MockObject|ResourceConnection
+     * @var MockObject|ResourceConnection $resourceCnnection
      */
-    private $resourceConnection;
+    private $resourceCnnection;
 
     /**
-     * @var MockObject|Generator
+     * @var MockObject|Generator $generator
      */
     private $generator;
 
     /**
-     * @var ProductPriceIndexFilter
+     * @var ProductPriceIndexFilter $productPriceIndexFilter
      */
     private $productPriceIndexFilter;
 
@@ -55,13 +56,13 @@ class ProductPriceIndexFilterTest extends TestCase
     {
         $this->stockConfiguration = $this->getMockForAbstractClass(StockConfigurationInterface::class);
         $this->item = $this->createMock(Item::class);
-        $this->resourceConnection = $this->createMock(ResourceConnection::class);
+        $this->resourceCnnection = $this->createMock(ResourceConnection::class);
         $this->generator = $this->createMock(Generator::class);
 
         $this->productPriceIndexFilter = new ProductPriceIndexFilter(
             $this->stockConfiguration,
             $this->item,
-            $this->resourceConnection,
+            $this->resourceCnnection,
             'indexer',
             $this->generator,
             100
@@ -69,22 +70,20 @@ class ProductPriceIndexFilterTest extends TestCase
     }
 
     /**
-     * Test to ensure that Modify Price method uses entityIds.
-     *
-     * @return void
+     * Test to ensure that Modify Price method uses entityIds,
      */
-    public function testModifyPrice(): void
+    public function testModifyPrice()
     {
         $entityIds = [1, 2, 3];
         $indexTableStructure = $this->createMock(IndexTableStructure::class);
         $connectionMock = $this->getMockForAbstractClass(AdapterInterface::class);
-        $this->resourceConnection->expects($this->once())->method('getConnection')->willReturn($connectionMock);
+        $this->resourceCnnection->expects($this->once())->method('getConnection')->willReturn($connectionMock);
         $selectMock = $this->createMock(Select::class);
         $connectionMock->expects($this->once())->method('select')->willReturn($selectMock);
-        $selectMock
+        $selectMock->expects($this->at(2))
             ->method('where')
-            ->withConsecutive([], [], ['stock_item.product_id IN (?)', $entityIds])
-            ->willReturnOnConsecutiveCalls(null, null, $selectMock);
+            ->with('stock_item.product_id IN (?)', $entityIds)
+            ->willReturn($selectMock);
         $this->generator->expects($this->once())
             ->method('generate')
             ->willReturnCallback(
@@ -104,7 +103,6 @@ class ProductPriceIndexFilterTest extends TestCase
      *
      * @param MockObject $selectMock
      * @param int $batchCount
-     *
      * @return \Closure
      */
     private function getBatchIteratorCallback(MockObject $selectMock, int $batchCount): \Closure
