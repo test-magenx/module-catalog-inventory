@@ -6,7 +6,6 @@
 
 namespace Magento\CatalogInventory\Model\Indexer\Stock;
 
-use Magento\Catalog\Model\Category;
 use Magento\CatalogInventory\Api\StockConfigurationInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\App\ObjectManager;
@@ -89,11 +88,6 @@ class CacheCleaner
         if ($productIds) {
             $this->cacheContext->registerEntities(Product::CACHE_TAG, array_unique($productIds));
             $this->eventManager->dispatch('clean_cache_by_tags', ['object' => $this->cacheContext]);
-            $categoryIds = $this->getCategoryIdsByProductIds($productIds);
-            if ($categoryIds){
-                $this->cacheContext->registerEntities(Category::CACHE_TAG, array_unique($categoryIds));
-                $this->eventManager->dispatch('clean_cache_by_tags', ['object' => $this->cacheContext]);
-            }
         }
     }
 
@@ -163,22 +157,6 @@ class CacheCleaner
         }
 
         return $productIds;
-    }
-
-    /**
-     * Get category ids for products
-     *
-     * @param array $productIds
-     * @return array
-     */
-    private function getCategoryIdsByProductIds(array $productIds): array
-    {
-        $categoryProductTable = $this->resource->getTableName('catalog_category_product');
-        $select = $this->getConnection()->select()
-            ->from(['catalog_category_product' => $categoryProductTable], ['category_id'])
-            ->where('product_id IN (?)', $productIds);
-
-        return $this->getConnection()->fetchCol($select);
     }
 
     /**
