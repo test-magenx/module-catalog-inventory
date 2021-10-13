@@ -1,5 +1,5 @@
 {
-    "name": "test-magenx/module-catalog-inventory",
+    "name": "magenxcommerce/module-catalog-inventory",
     "description": "N/A",
     "config": {
         "sort-packages": true
